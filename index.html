@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="player">
+        <div class="dashboard">
+            <!-- Header -->
+            <header>
+                <h4>Now playing:</h4>
+                <h2>Talking to the moon</h2>
+            </header>
+            <!-- CD -->
+            <div class="cd">
+                <div class="cd-thumb" style="background-image: url(./assets/img/tkttm.jpg);"></div>
+            </div>
+            <!-- Control -->
+            <div class="control">
+                <div class="btn btn-repeat">
+                    <i class="fa-solid fa-arrow-rotate-right"></i>
+                </div>
+                <div class="btn btn-pre">
+                    <i class="fa-solid fa-backward-step"></i>
+                </div>
+                <div class="btn btn-play">
+                    <i class="fa-solid fa-circle-pause icon-pause"></i>
+                    <i class="fa-solid fa-circle-play icon-play"></i>
+                </div>
+                <div class="btn btn-next">
+                    <i class="fa-solid fa-forward-step"></i>
+                </div>
+                <div class="btn btn-random">
+                    <i class="fa-solid fa-shuffle"></i>
+                </div>
+            </div>
+            <input id="progress" type="range" class="progress" value="0" step="1" min="0" max="100">
+            <audio id="audio" src="" class="audio"></audio>
+        </div>
+        <div class="playlist">
+            <!-- <div class="song">
+                <div class="thumb" style="background-image: url(./assets/img/wm.jpg);"></div>
+                <div class="body">
+                    <h3 class="title">Woman</h3>
+                    <p class="author">Doja Cat</p>
+                </div>
+                <div class="option">
+                    <i class="fa-solid fa-ellipsis"></i>
+                </div>
+            </div> -->
+        </div>
+    </div>
+    <script>
+        const $ = document.querySelector.bind(document);
+        const $$ = document.querySelectorAll.bind(document);
+        const PLAYER_STORAGE_KEY = 'F8_PLAYER'
+        const player = $('.player');
+        const cd = $('.cd');
+        const heading = $('header h2');
+        const cdThumb = $('.cd-thumb');
+        const audio = $('#audio');
+        const playBtn = $('.btn-play');
+        const repeatBtn = $('.btn-repeat');
+        const preBtn = $('.btn-pre')
+        const nextBtn = $('.btn-next');
+        const randomBtn = $('.btn-random');
+        const progress = $('#progress');
+        const playlist = $('.playlist');
+        const app = {
+            currentIndex: 0,
+            currentTime: 0,
+            isPlaying: false,
+            isTimeupdate: true,
+            isRandom: false,
+            isRepeat: false,
+            config: JSON.parse(localStorage.getItem(PLAYER_STORAGE_KEY)) || {},
+            setConfig: function (key, value) {
+                this.config[key] = value;
+                localStorage.setItem(PLAYER_STORAGE_KEY, JSON.stringify(this.config));
+            },
+            songs: [
+                {
+                    name: 'Save me',
+                    singer: 'DEAMN',
+                    path: './assets/music/Save-Me-DEAMN.mp3',
+                    thumb: './assets/img/sm.jpg'
+                },
+                {
+                    name: 'Talking to the moon',
+                    singer: 'Bruno Mars',
+                    path: './assets/music/Talking-To-The-Moon-Bruno-Mars-Bruno-Mars.mp3',
+                    thumb: './assets/img/tkttm.jpg'
+                },
+
+                {
+                    name: 'See you again',
+                    singer: 'Wiz Khalifa, Charlie Puth',
+                    path: './assets/music/See-You-Again-Absence-Remix-Wiz-Khalifa-Charlie-Puth.mp3',
+                    thumb: './assets/img/sya.png'
+                },
+                {
+                    name: 'Drive my car',
+                    singer: 'DEAMN',
+                    path: './assets/music/Drive-My-Car-DEAMN.mp3',
+                    thumb: './assets/img/dmc.jpg'
+                },
+                {
+                    name: 'Talking to the moon',
+                    singer: 'Bruno Mars',
+                    path: './assets/music/Talking-To-The-Moon-Bruno-Mars-Bruno-Mars.mp3',
+                    thumb: './assets/img/tkttm.jpg'
+                },
+                {
+                    name: 'Save me',
+                    singer: 'DEAMN',
+                    path: './assets/music/Save-Me-DEAMN.mp3',
+                    thumb: './assets/img/sm.jpg'
+                },
+                {
+                    name: 'See you again',
+                    singer: 'Wiz Khalifa, Charlie Puth',
+                    path: './assets/music/See-You-Again-Absence-Remix-Wiz-Khalifa-Charlie-Puth.mp3',
+                    thumb: './assets/img/sya.png'
+                },
+                {
+                    name: 'Drive my car',
+                    singer: 'DEAMN',
+                    path: './assets/music/Drive-My-Car-DEAMN.mp3',
+                    thumb: './assets/img/dmc.jpg'
+                },
+                {
+                    name: 'See you again',
+                    singer: 'Wiz Khalifa, Charlie Puth',
+                    path: './assets/music/See-You-Again-Absence-Remix-Wiz-Khalifa-Charlie-Puth.mp3',
+                    thumb: './assets/img/sya.png'
+                },
+                {
+                    name: 'Drive my car',
+                    singer: 'DEAMN',
+                    path: './assets/music/Drive-My-Car-DEAMN.mp3',
+                    thumb: './assets/img/dmc.jpg'
+                },
+                {
+                    name: 'Talking to the moon',
+                    singer: 'Bruno Mars',
+                    path: './assets/music/Talking-To-The-Moon-Bruno-Mars-Bruno-Mars.mp3',
+                    thumb: './assets/img/tkttm.jpg'
+                },
+                {
+                    name: 'Save me',
+                    singer: 'DEAMN',
+                    path: './assets/music/Save-Me-DEAMN.mp3',
+                    thumb: './assets/img/sm.jpg'
+                },
+                {
+                    name: 'See you again',
+                    singer: 'Wiz Khalifa, Charlie Puth',
+                    path: './assets/music/See-You-Again-Absence-Remix-Wiz-Khalifa-Charlie-Puth.mp3',
+                    thumb: './assets/img/sya.png'
+                },
+                {
+                    name: 'Drive my car',
+                    singer: 'DEAMN',
+                    path: './assets/music/Drive-My-Car-DEAMN.mp3',
+                    thumb: './assets/img/dmc.jpg'
+                },
+            ],
+            render: function () {
+                const htmls = this.songs.map((song, index) => {
+                    return `
+                    <div class="song ${index === this.currentIndex ? 'active' : ''}" data-index = ${index}>
+                        <div class="thumb" style="background-image: url(${song.thumb});"></div>
+                        <div class="body">
+                            <h3 class="title">${song.name}</h3>
+                            <p class="author">${song.singer}</p>
+                        </div>
+                        <div class="option">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </div>
+                    </div>`
+                })
+                $('.playlist').innerHTML = htmls.join('')
+            },
+            defineProperties: function () {
+                Object.defineProperty(this, 'currentSong', {
+                    get: function () {
+                        return this.songs[this.currentIndex];
+                    }
+                })
+            },
+            handelEvents: function () {
+                const cdWidth = cd.offsetWidth;
+                const _this = this;
+                // 
+                const cdThumbAnimate = cdThumb.animate([
+                    { transform: 'rotate(360deg)' }
+                ], {
+                    duration: 10000, //10 sec
+                    iterations: Infinity
+                })
+                cdThumbAnimate.pause();
+                // Handle zooming
+                playlist.onscroll = function () {
+                    const scrollTop = playlist.scrollTop;
+                    const newWidth = cdWidth - scrollTop;
+                    cd.style.width = newWidth > 0 ? newWidth + 'px' : 0;
+                    cd.style.opacity = newWidth / cdWidth;
+                }
+                // handle when pressing play button
+                playBtn.onclick = function () {
+                    if (_this.isPlaying) {
+                        audio.pause();
+                    }
+                    else {
+                        audio.play();
+                    }
+
+                }
+                audio.onplay = function () {
+                    _this.isPlaying = true;
+                    player.classList.add('playing');
+                    cdThumbAnimate.play();
+                }
+                audio.onpause = function () {
+                    _this.isPlaying = false;
+                    player.classList.remove('playing');
+                    cdThumbAnimate.pause();
+                }
+                // Handling when the song tempo changes
+                audio.ontimeupdate = function () {
+                    if (_this.isTimeupdate) {
+                        if (audio.duration) {
+                            const progPer = Math.floor(audio.currentTime / audio.duration * 100);
+                            progress.value = progPer;
+                            _this.setConfig('currentTime', audio.currentTime);
+                        }
+                    }
+
+                }
+                // Handling when rewinding the song
+                progress.onchange = function (e) {
+                    const seekTime = audio.duration * e.target.value / 100;
+                    audio.currentTime = seekTime;
+                }
+
+                progress.ontouchstart = function () {
+                    _this.isTimeupdate = false;
+                }
+                progress.onmousedown = function () {
+                    _this.isTimeupdate = false;
+                }
+                progress.ontouchend = function () {
+                    _this.isTimeupdate = true;
+                }
+                progress.onmouseup = function () {
+                    _this.isTimeupdate = true;
+                }
+
+                // Handing when pressing next button
+                nextBtn.onclick = function () {
+                    _this.currentTime = 0;
+                    if (_this.isRandom) {
+                        _this.randomSong();
+                    }
+                    else {
+                        _this.nextSong();
+
+                    }
+                    audio.play();
+                    _this.render();
+                    _this.scrollToActiveSong();
+
+                }
+                // Handing when pressing pre button
+                preBtn.onclick = function () {
+                    _this.currentTime = 0;
+                    if (_this.isRandom) {
+                        _this.randomSong();
+                    }
+                    else {
+                        _this.preSong();
+
+                    }
+                    audio.play();
+                    _this.render();
+                    _this.scrollToActiveSong();
+                }
+                // Handling when pressing the song random button
+                randomBtn.onclick = function () {
+                    _this.isRandom = !_this.isRandom;
+                    _this.setConfig('isRandom', _this.isRandom);
+                    randomBtn.classList.toggle('active', _this.isRandom);
+                }
+                // Handing when pressing repeat button
+                repeatBtn.onclick = function () {
+                    _this.isRepeat = !_this.isRepeat;
+                    _this.setConfig('isRepeat', _this.isRepeat);
+                    repeatBtn.classList.toggle('active', _this.isRepeat);
+                }
+                // Handing when audio ended
+                audio.onended = function () {
+                    if (_this.isRepeat) {
+                        audio.play();
+                    }
+                    else {
+                        nextBtn.click();
+                    }
+                }
+
+
+                // Handing when pressing a song
+                playlist.onclick = function (e) {
+                    var songElement = e.target.closest('.song:not(.active)')
+                    if (songElement || e.target.closest('.option')) {
+                        if (songElement) {
+                            _this.currentIndex = Number(songElement.dataset.index);
+                            _this.loadCurrentSong();
+                            _this.render();
+                            audio.play();
+
+                        }
+                        if (e.target.closest('.option')) {
+                            console.log('ss')
+                        }
+                    }
+
+                }
+
+            },
+            loadCurrentSong: function () {
+                heading.textContent = this.currentSong.name;
+                cdThumb.style.backgroundImage = `url('${this.currentSong.thumb}')`;
+                audio.src = this.currentSong.path;
+                this.setConfig('currentIndex', this.currentIndex);
+                audio.currentTime = this.currentTime;
+            },
+            loadConfig: function () {
+                this.isRandom = this.config.isRandom;
+                this.isRepeat = this.config.isRepeat;
+                this.currentIndex = this.config.currentIndex;
+                this.currentTime = this.config.currentTime;
+
+            },
+            nextSong: function () {
+                this.currentIndex++;
+                if (this.currentIndex >= this.songs.length) {
+                    this.currentIndex = 0;
+                }
+                this.loadCurrentSong();
+            },
+            preSong: function () {
+                this.currentIndex--;
+                if (this.currentIndex < 0) {
+                    this.currentIndex = this.songs.length - 1;
+                }
+                this.loadCurrentSong();
+            },
+            randomSong: function () {
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * this.songs.length)
+                } while (newIndex === this.currentIndex);
+                this.currentIndex = newIndex;
+                this.loadCurrentSong();
+            },
+            scrollToActiveSong: function () {
+                setTimeout(() => {
+                    $('.song.active').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+
+                }, 100)
+            },
+            start: function () {
+                // Assign config
+                this.loadConfig();
+                // Define properties for objects
+                this.defineProperties();
+                // Listen/Handle events (DOM events)
+                this.handelEvents();
+                // Load the first song information into the UI when run app
+                this.loadCurrentSong();
+                // Render playlist
+                this.render();
+                // Display 
+                repeatBtn.classList.toggle('active', this.isRepeat);
+                randomBtn.classList.toggle('active', this.isRandom);
+               
+
+            }
+        }
+        app.start();
+    </script>
+</body>
+
+</html>
